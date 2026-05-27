@@ -22,7 +22,7 @@
 <body>
     <div class="header">🐾 FurClock Dashboard</div>
     <div class="container">
-        <h1 class="title">Set & Forget</h1>
+        <h1 class="title">Set &amp; Forget</h1>
         <p class="subtitle">Pick your animals — then forget it exists</p>
         
         <div class="animal-grid" id="animalGrid">
@@ -40,19 +40,9 @@
     </div>
 
     <script>
-        let audioCtx;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         function playAnimalSound(animal) {
-            initAudio();
             const now = audioCtx.currentTime;
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
@@ -97,7 +87,6 @@
             }
         }
 
-        // Attach click listeners
         document.querySelectorAll('.animal-card').forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('active');
@@ -107,7 +96,6 @@
         });
 
         function activateFurClock() {
-            initAudio();
             if (Notification.permission === "default") {
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
@@ -115,11 +103,9 @@
                     }
                 });
             } else if (Notification.permission === "granted") {
-                alert("🐾 Notifications already enabled! FurClock is running.");
+                alert("🐾 Notifications already enabled!");
             }
         }
-
-        console.log('%c🐾 FurClock dashboard loaded – click animals to test!', 'color:#ff6b9d; font-size:14px');
     </script>
 </body>
 </html>

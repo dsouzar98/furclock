@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FurClock • Hourly Animal Sounds</title>
+    <title>FurClock - Your hourly dose of chaos and love</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #ff9a9e, #fad0c4); margin:0; padding:0; color:#333; }
-        .container { max-width: 800px; margin: 0 auto; padding: 60px 20px; text-align:center; }
-        h1 { font-size: 4rem; margin-bottom: 8px; }
-        .tagline { font-size: 1.5rem; color:#444; margin-bottom: 50px; }
-        .animals { display: flex; justify-content: center; gap: 40px; font-size: 5rem; margin: 50px 0; }
-        .cta-button { background: #ff6b6b; color: white; border: none; padding: 18px 40px; font-size: 1.4rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 15px 25px rgba(255,107,107,0.3); font-weight: 600; }
-        .cta-button:hover { transform: translateY(-3px); }
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Poppins:wght@400;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; margin:0; padding:0; background: linear-gradient(135deg, #a8e6cf, #d4a5ff); color:#333; text-align:center; }
+        .header { background:white; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+        .logo { font-size:3.5rem; font-weight:700; color:#ff6b9d; text-shadow:3px 3px 0 #4ecdc4; }
+        .tagline { font-family:'Comic Neue', cursive; font-size:1.8rem; margin:10px 0 30px; color:#4ecdc4; }
+        .hero { padding:60px 20px; max-width:800px; margin:0 auto; }
+        .animals { display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin:40px 0; }
+        .animal { font-size:4rem; transition:transform .3s; }
+        .animal:hover { transform:scale(1.2) rotate(10deg); }
+        .cta { background:#ff6b9d; color:white; padding:18px 40px; font-size:1.4rem; border:none; border-radius:50px; cursor:pointer; box-shadow:0 8px 0 #c74a7a; }
+        .cta:active { transform:translateY(4px); box-shadow:0 4px 0 #c74a7a; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🐱 FurClock 🐶</h1>
-        <p class="tagline">Your hourly dose of chaos and love</p>
+    <div class="header"><div class="logo">🐱 FurClock 🐶</div><div class="tagline">Your hourly dose of chaos and love</div></div>
+    <div class="hero">
+        <h1 style="font-size:3rem;margin-bottom:10px;">Time just got a lot cuter.</h1>
+        <p style="font-size:1.4rem;max-width:600px;margin:0 auto 40px;">Every hour your phone sends a surprise meow, woof, chirp, or bleat.<br>Simple. Silly. Addictive.</p>
         <div class="animals">
-            🐱 🐶 🐦 🐐
+            <div class="animal">🐱</div><div class="animal">🐶</div><div class="animal">🐦</div><div class="animal">🐐</div>
         </div>
-        <h2>Never miss an hour again.</h2>
-        <p style="font-size:1.25rem; max-width:520px; margin:40px auto; line-height:1.5;">Every hour your phone gently plays a cute (or chaotic) animal sound.</p>
-        <button class="cta-button" onclick="window.location.href='/app/index.html'">Open Dashboard →</button>
-        <p style="margin-top:80px; opacity:0.8;">Super simple • Set and forget • Freemium</p>
+        <button onclick="window.location.href='/dashboard.html'" class="cta">Open Dashboard →</button>
+        <p style="margin-top:20px;font-size:1.1rem;"><strong>Free:</strong> 1 animal • <strong>Paid:</strong> All 4 + personalities ($4.99/mo)</p>
     </div>
 </body>
 </html>
