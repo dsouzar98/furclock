@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FurClock Dashboard</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Poppins:wght@400;600&display=swap');
+        body { font-family:'Poppins',sans-serif; margin:0; padding:0; background:#f0f8f0; }
+        .header { background:#4ecdc4; color:white; padding:15px; text-align:center; font-size:1.8rem; font-weight:700; }
+        .container { max-width:640px; margin:30px auto; background:white; border-radius:25px; box-shadow:0 10px 30px rgba(0,0,0,0.1); padding:30px; }
+        .title { text-align:center; font-size:2rem; margin-bottom:10px; }
+        .subtitle { text-align:center; color:#ff6b9d; margin-bottom:30px; }
+        .animal-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin:30px 0; }
+        .animal-card { background:#f8f8f8; border-radius:20px; padding:20px; text-align:center; font-size:3.5rem; cursor:pointer; transition:all .3s; border:4px solid transparent; }
+        .animal-card.active { border-color:#ff6b9d; background:#fff0f5; transform:scale(1.05); }
+        .toggle { width:100%; font-size:1.4rem; padding:18px; background:#4ecdc4; color:white; border:none; border-radius:50px; cursor:pointer; margin-top:20px; }
+        .status { margin-top:30px; padding:15px; background:#e0f7e0; border-radius:15px; font-size:1.1rem; text-align:center; }
+    </style>
+</head>
+<body>
+    <div class="header">🐾 FurClock Dashboard</div>
+    <div class="container">
+        <h1 class="title">Set & Forget</h1>
+        <p class="subtitle">Pick your animals — then forget it exists</p>
+        
+        <div class="animal-grid" id="animalGrid">
+            <div class="animal-card active" data-animal="cat">🐱<br><small>Meow</small></div>
+            <div class="animal-card active" data-animal="dog">🐶<br><small>Woof</small></div>
+            <div class="animal-card" data-animal="bird">🐦<br><small>Chirp</small></div>
+            <div class="animal-card" data-animal="goat">🐐<br><small>Bleat</small></div>
+        </div>
+        
+        <button onclick="activateFurClock()" class="toggle">🚀 ACTIVATE FURCLOCK (Enable Notifications)</button>
+        
+        <div class="status" id="status">
+            ✅ Ready • Tap animals to test sounds • Notifications will fire every hour
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playAnimalSound(animal) {
+            const now = audioCtx.currentTime;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (animal === "cat") {
+                oscillator.frequency.setValueAtTime(800, now);
+                gainNode.gain.value = 0.6;
+                oscillator.type = "sine";
+            } else if (animal === "dog") {
+                oscillator.frequency.setValueAtTime(300, now);
+                gainNode.gain.value = 0.8;
+                oscillator.type = "sawtooth";
+            } else if (animal === "bird") {
+                oscillator.frequency.setValueAtTime(1200, now);
+                gainNode.gain.value = 0.4;
+                oscillator.type = "sine";
+            } else if (animal === "goat") {
+                oscillator.frequency.setValueAtTime(180, now);
+                gainNode.gain.value = 0.9;
+                oscillator.type = "square";
+            }
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+            oscillator.stop(now + 0.7);
+            
+            const messages = {
+                cat: ["Meow! Time for chaos 😼", "Your hourly cat tax is due 🐱"],
+                dog: ["WOOF! Good hour king 🐶", "Doggo says you’re crushing it"],
+                bird: ["Chirp chirp! New hour unlocked 🐦", "Birds approve of this hour"],
+                goat: ["BLEEAAAT! You got this 🐐", "Goat says: stop scrolling, legend"]
+            };
+            const msg = messages[animal][Math.floor(Math.random()*messages[animal].length)];
+            const status = document.getElementById('status');
+            status.innerHTML = `🎉 ${msg}<br><small>Sound played • Next real notification in ~60 min</small>`;
+            
+            if (Notification.permission === "granted") {
+                new Notification("FurClock", { body: msg, icon: "🐾" });
+            }
+        }
+
+        document.querySelectorAll('.animal-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('active');
+                const animal = card.getAttribute('data-animal');
+                playAnimalSound(animal);
+            });
+        });
+
+        function activateFurClock() {
+            if (Notification.permission === "default") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        document.getElementById('status').innerHTML = '🎉 Notifications ENABLED!<br>FurClock is now LIVE on your phone';
+                    }
+                });
+            } else if (Notification.permission === "granted") {
+                alert("🐾 Notifications already enabled! FurClock is running.");
+            }
+        }
+    </script>
+</body>
+</html>
