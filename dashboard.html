@@ -40,9 +40,19 @@
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         function playAnimalSound(animal) {
+            initAudio();
             const now = audioCtx.currentTime;
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
@@ -87,6 +97,7 @@
             }
         }
 
+        // Attach click listeners
         document.querySelectorAll('.animal-card').forEach(card => {
             card.addEventListener('click', () => {
                 card.classList.toggle('active');
@@ -96,6 +107,7 @@
         });
 
         function activateFurClock() {
+            initAudio();
             if (Notification.permission === "default") {
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
@@ -106,6 +118,8 @@
                 alert("🐾 Notifications already enabled! FurClock is running.");
             }
         }
+
+        console.log('%c🐾 FurClock dashboard loaded – click animals to test!', 'color:#ff6b9d; font-size:14px');
     </script>
 </body>
 </html>
