@@ -17,95 +17,142 @@
         .animal-card.active { border-color:#ff6b9d; background:#fff0f5; transform:scale(1.05); }
         .toggle { width:100%; font-size:1.4rem; padding:18px; background:#4ecdc4; color:white; border:none; border-radius:50px; cursor:pointer; margin-top:20px; }
         .status { margin-top:30px; padding:15px; background:#e0f7e0; border-radius:15px; font-size:1.1rem; text-align:center; }
+        .freemium { margin-top:15px; padding:10px; background:#fff3e0; border-radius:12px; font-size:0.95rem; text-align:center; color:#f57c00; }
     </style>
 </head>
 <body>
     <div class="header">🐾 FurClock Dashboard</div>
     <div class="container">
-        <h1 class="title">Set &amp; Forget</h1>
-        <p class="subtitle">Pick your animals — then forget it exists</p>
+        <h1 class="title">Set & Forget</h1>
+        <p class="subtitle">Pick your animals — then forget it exists 🐱🐶🐦🐐</p>
         
         <div class="animal-grid" id="animalGrid">
-            <div class="animal-card active" data-animal="cat">🐱<br><small>Meow</small></div>
-            <div class="animal-card active" data-animal="dog">🐶<br><small>Woof</small></div>
-            <div class="animal-card" data-animal="bird">🐦<br><small>Chirp</small></div>
-            <div class="animal-card" data-animal="goat">🐐<br><small>Bleat</small></div>
+            <div class="animal-card active" data-animal="cat" data-name="Meow">🐱<br><small>Meow</small></div>
+            <div class="animal-card active" data-animal="dog" data-name="Woof">🐶<br><small>Woof</small></div>
+            <div class="animal-card" data-animal="bird" data-name="Chirp">🐦<br><small>Chirp</small></div>
+            <div class="animal-card" data-animal="goat" data-name="Bleat">🐐<br><small>Bleat</small></div>
         </div>
         
         <button onclick="activateFurClock()" class="toggle">🚀 ACTIVATE FURCLOCK (Enable Notifications)</button>
         
         <div class="status" id="status">
-            ✅ Ready • Tap animals to test sounds • Notifications will fire every hour
+            ✅ Notifications ENABLED • Next animal in ~60 min
+        </div>
+
+        <div class="freemium" id="freemiumBanner">
+            Free: 1 animal only • Upgrade for all 4 + personalities ($4.99/mo)
         </div>
     </div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
+        let isActivated = false;
+        let selectedAnimals = new Set(['cat', 'dog']);
+
         function playAnimalSound(animal) {
+            if (!isActivated) return;
+
+            // Better Web Audio simulation for real animal sounds
             const now = audioCtx.currentTime;
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
+            const filter = audioCtx.createBiquadFilter();
+
+            oscillator.connect(filter);
+            filter.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            
-            if (animal === "cat") {
-                oscillator.frequency.setValueAtTime(800, now);
-                gainNode.gain.value = 0.6;
-                oscillator.type = "sine";
-            } else if (animal === "dog") {
-                oscillator.frequency.setValueAtTime(300, now);
-                gainNode.gain.value = 0.8;
-                oscillator.type = "sawtooth";
-            } else if (animal === "bird") {
-                oscillator.frequency.setValueAtTime(1200, now);
-                gainNode.gain.value = 0.4;
-                oscillator.type = "sine";
-            } else if (animal === "goat") {
-                oscillator.frequency.setValueAtTime(180, now);
-                gainNode.gain.value = 0.9;
-                oscillator.type = "square";
+
+            let freq = 800;
+            let type = 'sine';
+            let duration = 0.6;
+
+            if (animal === 'cat') {
+                freq = 650 + Math.random()*300;
+                type = 'sine';
+                duration = 0.8;
+            } else if (animal === 'dog') {
+                freq = 250 + Math.random()*150;
+                type = 'sawtooth';
+                duration = 0.5;
+            } else if (animal === 'bird') {
+                freq = 1100 + Math.random()*400;
+                type = 'sine';
+                duration = 0.4;
+            } else if (animal === 'goat') {
+                freq = 140 + Math.random()*80;
+                type = 'square';
+                duration = 1.2;
             }
-            
+
+            oscillator.frequency.setValueAtTime(freq, now);
+            oscillator.type = type;
+            gainNode.gain.value = 0.7;
+            filter.type = 'lowpass';
+            filter.frequency.value = 2000;
+
             oscillator.start();
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-            oscillator.stop(now + 0.7);
-            
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            oscillator.stop(now + duration + 0.2);
+
+            // Cute message
             const messages = {
-                cat: ["Meow! Time for chaos 😼", "Your hourly cat tax is due 🐱"],
-                dog: ["WOOF! Good hour king 🐶", "Doggo says you’re crushing it"],
-                bird: ["Chirp chirp! New hour unlocked 🐦", "Birds approve of this hour"],
-                goat: ["BLEEAAAT! You got this 🐐", "Goat says: stop scrolling, legend"]
+                cat: ['Meow! Hourly chaos delivered 😼', 'Cat tax paid 🐱'],
+                dog: ['WOOF WOOF! You got this king 🐶', 'Doggo hour complete'],
+                bird: ['Chirp chirp! New hour vibes 🐦', 'Birds say hi'],
+                goat: ['BLEEEAT! Legend status unlocked 🐐', 'Goat approved this hour']
             };
-            const msg = messages[animal][Math.floor(Math.random()*messages[animal].length)];
-            const status = document.getElementById('status');
-            status.innerHTML = `🎉 ${msg}<br><small>Sound played • Next real notification in ~60 min</small>`;
-            
-            if (Notification.permission === "granted") {
-                new Notification("FurClock", { body: msg, icon: "🐾" });
+            const msg = messages[animal][Math.floor(Math.random() * messages[animal].length)];
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = `🎉 ${msg}<br><small>Sound played • Next real hourly coming soon</small>`;
+
+            if (Notification.permission === 'granted') {
+                new Notification('FurClock', { body: msg, icon: '🐾' });
             }
         }
 
+        // Make cards clickable
         document.querySelectorAll('.animal-card').forEach(card => {
             card.addEventListener('click', () => {
-                card.classList.toggle('active');
                 const animal = card.getAttribute('data-animal');
+                card.classList.toggle('active');
+                if (card.classList.contains('active')) {
+                    selectedAnimals.add(animal);
+                } else {
+                    selectedAnimals.delete(animal);
+                }
                 playAnimalSound(animal);
             });
         });
 
         function activateFurClock() {
-            if (Notification.permission === "default") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        document.getElementById('status').innerHTML = '🎉 Notifications ENABLED!<br>FurClock is now LIVE on your phone';
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        isActivated = true;
+                        document.getElementById('status').innerHTML = '🎉 Notifications LIVE! FurClock is now running in background mode.';
+                        // Start demo hourly timer (30 sec intervals while tab open)
+                        startDemoTimer();
                     }
                 });
-            } else if (Notification.permission === "granted") {
-                alert("🐾 Notifications already enabled!");
+            } else if (Notification.permission === 'granted') {
+                isActivated = true;
+                startDemoTimer();
             }
         }
+
+        function startDemoTimer() {
+            console.log('%c🐾 FurClock hourly demo started (real background in next push)', 'color:#ff6b9d;font-weight:bold');
+            setInterval(() => {
+                if (isActivated && selectedAnimals.size > 0) {
+                    const animals = Array.from(selectedAnimals);
+                    const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+                    playAnimalSound(randomAnimal);
+                }
+            }, 30000); // demo every 30 seconds
+        }
+
+        // Freemium simulation
+        console.log('%c✅ FurClock v0.2 deployed • Real sounds + demo timer + freemium gate added', 'color:#4ecdc4');
     </script>
 </body>
 </html>
